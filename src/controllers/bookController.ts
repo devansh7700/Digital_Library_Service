@@ -2,23 +2,44 @@ import { Request, Response } from "express";
 import { HTTP_STATUS } from "../constants/httpConstants";
 import * as bookService from "../services/bookService";
 
-export const getAllBooks = (req: Request, res: Response): void => {
+export const addBooks = (req: Request, res: Response): void => {
     try {
-        const { title, author, genre } = req.query;;
-        let books;
-        if (title || author || genre) {
-            books = bookService.searchBooks({
-                title: title as string,
-                author: author as string,
-                genre: genre as string,
+        let { title = "", author = "", genre = "" } = req.query as {
+            title?: string;
+            author?: string;
+            genre?: string;
+        };
+        
+        title = title.trim();
+        author = author.trim();
+        genre = genre.trim();
+
+        if (!title) {
+            res.status(HTTP_STATUS.BAD_REQUEST).json({
+                message: "Validation error: 'title' is required and cannot be empty",
             });
-        } else {
-            books = bookService.getAllBooks();
+            return;
         }
 
-        res.status(HTTP_STATUS.OK).json({
-            message: "Books retrieved",
-            data: books,
+        if (!author) {
+            res.status(HTTP_STATUS.BAD_REQUEST).json({
+                message: "Validation error: 'author' is required and cannot be empty",
+            });
+            return;
+        }
+
+        if (!genre) {
+            res.status(HTTP_STATUS.BAD_REQUEST).json({
+                message: "Validation error: 'genre' is required and cannot be empty",
+            });
+            return;
+        }
+
+        const createdBook = bookService.addBook({ title, author, genre });
+
+        res.status(HTTP_STATUS.CREATED).json({
+            message: "Books added",
+            data: createdBook,
         });
     } catch (error) {
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
