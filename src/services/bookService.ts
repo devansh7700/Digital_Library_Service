@@ -48,6 +48,38 @@ export const getAllBooks = (): Book[] => {
  *     genre: "Fiction"
  * });
  */
+
+export const searchBooks = (filters: {
+    title?: string;
+    author?: string;
+    genre?: string;
+}): Book[] => {
+    let results = structuredClone(books);
+
+    if (filters.title) {
+        const titleLower = filters.title.toLowerCase();
+        results = results.filter((b) =>
+            b.title.toLowerCase().includes(titleLower)
+        );
+    }
+
+    if (filters.author) {
+        const authorLower = filters.author.toLowerCase();
+        results = results.filter((b) =>
+            b.author.toLowerCase().includes(authorLower)
+        );
+    }
+
+    if (filters.genre) {
+        const genreLower = filters.genre.toLowerCase();
+        results = results.filter(
+            (b) => b.genre.toLowerCase() === genreLower
+        );
+    }
+
+    return results;
+};
+
 export const addBook = (
     bookData: Omit<Book, "id" | "isBorrowed" | "borrowerId" | "dueDate">
 ): Book => {
